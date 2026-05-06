@@ -5,33 +5,76 @@ import { useState, useTransition } from "react";
 import { OrthoLogo } from "@/components/ortho-logo";
 
 const pillars = [
-  { id: "ia", label: "Inteligência Artificial", detail: "Triagem cognitiva para acelerar decisões." },
-  { id: "precisao", label: "Precisão Clínica", detail: "Camadas operacionais orientadas por contexto." },
-  { id: "evidencia", label: "Evidência Científica", detail: "Síntese contínua de protocolos e literatura." },
-  { id: "evolucao", label: "Evolução Contínua", detail: "Motor que aprende com fluxos e feedbacks." },
+  { id: "study", label: "Estudo e residência", detail: "Casos, temas, provas, protocolos e revisão guiada." },
+  { id: "clinical", label: "Decisão clínica", detail: "Raciocínio ortopédico com evidência e contexto." },
+  { id: "surgery", label: "Planejamento cirúrgico", detail: "Ângulos, eixos, materiais, técnica e estratégia." },
+  { id: "docs", label: "Documentação inteligente", detail: "Laudos, pedidos, TUSS, justificativas e prontuário." },
 ] as const;
 
-const solutions = [
+const capabilities = [
   {
-    title: "Análise de Imagens",
-    description: "Interpretação assistida para RX, RM, TC e ultrassom com contexto ortopédico imediato.",
-    kind: "images",
+    title: "Ortho Console",
+    description: "Um assistente clínico para discutir casos, hipóteses, condutas, protocolos e dúvidas de ortopedia em linguagem natural.",
+    kind: "console",
   },
   {
-    title: "Códigos TUSS",
-    description: "Sugestão estruturada de pedidos e compatibilidade de procedimentos para convênios.",
+    title: "Estudo para residentes",
+    description: "Trilhas de aprendizado, revisão por subespecialidade, discussão de casos e sínteses para prova, ambulatório e centro cirúrgico.",
+    kind: "education",
+  },
+  {
+    title: "Laudos e pareceres",
+    description: "Estrutura laudos, pareceres e evoluções com linguagem médica, achados relevantes, hipótese e conclusão organizada.",
+    kind: "reports",
+  },
+  {
+    title: "Pedidos cirúrgicos e TUSS",
+    description: "Gera pedidos de cirurgia, materiais, OPME, justificativas e códigos TUSS com rastreabilidade operacional.",
     kind: "codes",
   },
   {
-    title: "Planejamento Cirúrgico",
-    description: "Organize hipóteses, materiais e condutas a partir de um único cockpit assistido.",
-    kind: "planning",
+    title: "Planejamento com ângulos",
+    description: "Apoio para correção de eixos, deformidades, varo/valgo, osteotomias, artroplastia e medidas radiográficas.",
+    kind: "angles",
   },
   {
-    title: "Dados Seguros LGPD",
-    description: "Arquitetura preparada para governança, consentimento e rastreabilidade clínica.",
-    kind: "security",
+    title: "Imagens e exames",
+    description: "Organiza RX, RM, TC e US em um raciocínio clínico integrado, conectando achados, diagnóstico e próximos passos.",
+    kind: "images",
   },
+  {
+    title: "Ortobiológicos e regenerativa",
+    description: "Protocolos, elegibilidade, materiais, indicação e documentação para terapias ortobiológicas e medicina regenerativa.",
+    kind: "biologics",
+  },
+  {
+    title: "Protocolos e evidência",
+    description: "Consulta protocolos, literatura, checklists e condutas para tomada de decisão com base científica.",
+    kind: "protocols",
+  },
+] as const;
+
+const surgicalStack = [
+  "Correção de ângulos e eixos mecânicos",
+  "Planejamento de osteotomias e deformidades",
+  "Artroplastia, artroscopia e materiais",
+  "Checklist pré-operatório e justificativa",
+  "Pedidos de OPME e compatibilidade TUSS",
+  "Resumo cirúrgico para equipe e paciente",
+] as const;
+
+const residentStack = [
+  "Banco de temas por subespecialidade",
+  "Discussão de casos com perguntas orientadoras",
+  "Resumo rápido para ambulatório e plantão",
+  "Protocolos de trauma, joelho, ombro, quadril e coluna",
+] as const;
+
+const workflow = [
+  { step: "01", title: "Estude o caso", detail: "Insira história, exame físico, hipótese, imagem ou dúvida." },
+  { step: "02", title: "Raciocine com a IA", detail: "O OrthoBrain cruza evidência, protocolos, TUSS e contexto ortopédico." },
+  { step: "03", title: "Planeje a conduta", detail: "Receba estratégia clínica, cirúrgica, regenerativa ou documental." },
+  { step: "04", title: "Gere documentos", detail: "Produza laudo, pedido, justificativa, plano cirúrgico e resumo." },
 ] as const;
 
 const plans = [
@@ -41,8 +84,8 @@ const plans = [
     monthlyCycle: "/mês",
     annual: "R$1.047,60",
     annualCycle: "/ano",
-    description: "Entrada enxuta para consultórios que precisam padronizar pedidos e laudos.",
-    bullets: ["Pedidos TUSS essenciais", "1 usuário principal", "Suporte por e-mail"],
+    description: "Para residentes e ortopedistas que querem IA para estudo, documentos essenciais e consulta clínica.",
+    bullets: ["Ortho Console essencial", "Estudo e protocolos", "Pedidos e laudos básicos"],
     featured: false,
   },
   {
@@ -51,8 +94,8 @@ const plans = [
     monthlyCycle: "/mês",
     annual: "R$2.128,60",
     annualCycle: "/ano",
-    description: "Fluxo completo para especialistas com rotina de análise, prescrição e revisão.",
-    bullets: ["Ortho Console completo", "Imagens + Planejamento", "Mais popular entre especialistas"],
+    description: "Para especialistas que precisam de IA clínica, planejamento, laudos, TUSS e rotina cirúrgica completa.",
+    bullets: ["Planejamento cirúrgico", "Laudos e TUSS avançados", "Ortobiológicos e regenerativa"],
     featured: true,
   },
   {
@@ -61,25 +104,32 @@ const plans = [
     monthlyCycle: "/mês",
     annual: "R$5.367,60",
     annualCycle: "/ano",
-    description: "Camada operacional para equipes, múltiplos médicos e governança centralizada.",
-    bullets: ["Múltiplos assentos", "Gestão de documentos", "Visão administrativa da operação"],
+    description: "Para equipes, clínicas e serviços que precisam padronizar fluxos, documentos, assinatura e governança.",
+    bullets: ["Múltiplos profissionais", "Workspace de documentos", "Gestão clínica e operacional"],
     featured: false,
   },
 ] as const;
 
 const modules = [
-  { title: "Análise de Imagens", subtitle: "Vision AI", kind: "images" },
-  { title: "Planejamento Cirúrgico", subtitle: "Surgical Flow", kind: "planning" },
-  { title: "Medidas", subtitle: "Metrics", kind: "measurements" },
-  { title: "Artroscopia", subtitle: "Scope Assist", kind: "arthroscopy" },
-  { title: "Ortobiológicos", subtitle: "Bio Modules", kind: "biologics" },
-  { title: "Protocolos", subtitle: "Clinical Playbooks", kind: "protocols" },
-  { title: "Educação", subtitle: "Learning Hub", kind: "education" },
-  { title: "Plataforma Global", subtitle: "Unified Workspace", kind: "global" },
+  { title: "Ortho Console", subtitle: "IA clínica", kind: "console" },
+  { title: "Estudo", subtitle: "Residência e prova", kind: "education" },
+  { title: "Laudos", subtitle: "Documentos médicos", kind: "reports" },
+  { title: "Pedidos TUSS", subtitle: "Cirurgia e exames", kind: "codes" },
+  { title: "Ângulos", subtitle: "Eixos e medidas", kind: "angles" },
+  { title: "Artroscopia", subtitle: "Técnicas e materiais", kind: "arthroscopy" },
+  { title: "Ortobiológicos", subtitle: "Regenerativa", kind: "biologics" },
+  { title: "Protocolos", subtitle: "Evidência científica", kind: "protocols" },
 ] as const;
 
 function Glyph({ kind }: { kind: string }) {
   switch (kind) {
+    case "console":
+      return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <path d="M5 6.5C5 5.1 6.1 4 7.5 4H16.5C17.9 4 19 5.1 19 6.5V13.5C19 14.9 17.9 16 16.5 16H10L6 20V16.2C5.4 15.8 5 15.1 5 14.3V6.5Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M8.5 8.5H15.5M8.5 11.5H13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      );
     case "images":
       return (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -95,34 +145,19 @@ function Glyph({ kind }: { kind: string }) {
           <path d="M8 9H16M8 12H16M8 15H12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
       );
-    case "planning":
+    case "angles":
       return (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M7 18L17 6" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <circle cx="8" cy="16" r="3" stroke="currentColor" strokeWidth="1.6" />
-          <circle cx="16" cy="8" r="3" stroke="currentColor" strokeWidth="1.6" />
+          <path d="M5 19L19 5M5 19H17M5 19V7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M9 18.5C9 16.2 8 14.1 6.4 12.7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <circle cx="17.5" cy="6.5" r="1.7" fill="currentColor" />
         </svg>
       );
-    case "security":
+    case "reports":
       return (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M12 4L18 7V11.5C18 15.5 15.6 18.9 12 20C8.4 18.9 6 15.5 6 11.5V7L12 4Z" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M9.5 12.2L11.2 13.9L14.8 10.3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      );
-    case "measurements":
-      return (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <path d="M5 16L16 5L19 8L8 19H5V16Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
-          <path d="M11 10L14 13M9 12L12 15" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
-        </svg>
-      );
-    case "arthroscopy":
-      return (
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-          <circle cx="10" cy="10" r="4" stroke="currentColor" strokeWidth="1.6" />
-          <path d="M13.5 13.5L18.5 18.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          <path d="M16 7H20" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <path d="M7 4H14L18 8V20H7C5.9 20 5 19.1 5 18V6C5 4.9 5.9 4 7 4Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+          <path d="M14 4V8H18M8.5 12H15.5M8.5 15H14" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       );
     case "biologics":
@@ -148,6 +183,14 @@ function Glyph({ kind }: { kind: string }) {
           <path d="M7 12.8V15.5C7 16.4 9.2 18 12 18C14.8 18 17 16.4 17 15.5V12.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
       );
+    case "arthroscopy":
+      return (
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+          <circle cx="10" cy="10" r="4" stroke="currentColor" strokeWidth="1.6" />
+          <path d="M13.5 13.5L18.5 18.5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+          <path d="M16 7H20" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        </svg>
+      );
     default:
       return (
         <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
@@ -163,16 +206,17 @@ export default function Home() {
   const [, startTransition] = useTransition();
 
   return (
-    <main className="landing-page">
+    <main className="landing-page platform-page">
       <header className="landing-header">
         <div className="container landing-header__inner">
           <Link href="/" aria-label="ORTHO.AI">
             <OrthoLogo tone="light" />
           </Link>
           <nav className="landing-nav" aria-label="Principal">
-            <a href="#plataforma">Plataforma</a>
-            <a href="#planos">Planos</a>
+            <a href="#ia-clinica">IA clínica</a>
             <a href="#modulos">Módulos</a>
+            <a href="#cirurgia">Cirurgia</a>
+            <a href="#planos">Planos</a>
             <Link href="/login">Entrar</Link>
           </nav>
         </div>
@@ -182,58 +226,79 @@ export default function Home() {
         <div className="container">
           <div className="hero-grid">
             <div className="hero-copy">
-              <span className="eyebrow">Powered by OrthoBrain Engine™</span>
-              <h1 className="hero-title">A nova era da ortopedia inteligente</h1>
+              <span className="eyebrow">OrthoBrain Engine™</span>
+              <h1 className="hero-title">A IA ortopédica para estudar, decidir, documentar e planejar cirurgias.</h1>
               <p>
-                Uma plataforma cognitiva desenhada para transformar imagem, evidência,
-                solicitação TUSS e planejamento cirúrgico em decisões mais rápidas,
-                seguras e consistentes para a prática ortopédica.
+                ORTHO.AI é um cockpit cognitivo para ortopedistas, residentes e clínicas:
+                estudo, laudos, pedidos TUSS, planejamento cirúrgico com correção de
+                ângulos, ortobiológicos, medicina regenerativa e protocolos em uma única
+                inteligência.
               </p>
               <div className="hero-actions">
                 <Link href="/login" className="button button--primary">
-                  Conhecer a plataforma
+                  Entrar no cockpit
                 </Link>
-                <a href="#planos" className="button button--ghost">
-                  Ver planos
+                <a href="#ia-clinica" className="button button--ghost">
+                  Ver capacidades
                 </a>
               </div>
               <div className="hero-footnote">
-                Orquestra clínica para consultórios, especialistas e clínicas em expansão.
+                Do R1 ao especialista: IA aplicada a toda jornada ortopédica.
               </div>
             </div>
 
-            <div className="hero-visual" aria-hidden="true">
-              <div className="hero-axis" />
-              <div className="hero-ring hero-ring--outer" />
-              <div className="hero-ring hero-ring--mid" />
-              <div className="hero-ring hero-ring--inner" />
-              <div className="hero-arc hero-arc--navy" />
-              <div className="hero-arc hero-arc--gold" />
-              <div className="hero-node" />
-              <div className="hero-dot hero-dot--a" />
-              <div className="hero-dot hero-dot--b" />
-              <div className="hero-dot hero-dot--c" />
-              <div className="hero-visual__panel">
-                <div className="hero-signal">
-                  <strong>Imaging Layer</strong>
-                  <span>Análise de Imagens</span>
-                  <em>Interpretação assistida por contexto clínico.</em>
+            <div className="hero-visual hero-visual--console" aria-hidden="true">
+              <div className="product-console">
+                <div className="product-console__header">
+                  <span>ORTHO CONSOLE</span>
+                  <strong>Caso ativo: Joelho varo + dor medial</strong>
                 </div>
-                <div className="hero-signal">
-                  <strong>TUSS Matrix</strong>
-                  <span>Códigos Estruturados</span>
-                  <em>Pedidos consistentes com fluxo operacional.</em>
+                <div className="product-console__tabs">
+                  <span className="is-active">Raciocínio</span>
+                  <span>Ângulos</span>
+                  <span>TUSS</span>
+                  <span>Laudo</span>
                 </div>
-                <div className="hero-signal">
-                  <strong>Precision Axis</strong>
-                  <span>Planejamento Cirúrgico</span>
-                  <em>Protocolos, materiais e racional em um só eixo.</em>
+                <div className="case-board">
+                  <div className="case-board__main">
+                    <span className="console-label">Síntese IA</span>
+                    <p>
+                      Avaliar eixo mecânico, compartimento medial, indicação de osteotomia
+                      ou artroplastia parcial conforme idade, demanda e achados de imagem.
+                    </p>
+                    <div className="console-tags">
+                      <span>HKA</span>
+                      <span>Varo</span>
+                      <span>RM</span>
+                      <span>OPME</span>
+                    </div>
+                  </div>
+                  <div className="measurement-map">
+                    <div className="measurement-map__axis" />
+                    <div className="measurement-map__angle">7.5°</div>
+                    <div className="measurement-map__node measurement-map__node--a" />
+                    <div className="measurement-map__node measurement-map__node--b" />
+                  </div>
+                </div>
+                <div className="console-feed">
+                  <div>
+                    <strong>Pedido cirúrgico</strong>
+                    <span>Materiais + justificativa + códigos TUSS</span>
+                  </div>
+                  <div>
+                    <strong>Regenerativa</strong>
+                    <span>Elegibilidade e protocolo ortobiológico</span>
+                  </div>
+                  <div>
+                    <strong>Estudo</strong>
+                    <span>Resumo para residente e perguntas-chave</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="pillar-row" id="plataforma">
+          <div className="pillar-row" id="ia-clinica">
             {pillars.map((pillar) => (
               <div key={pillar.id} className="pillar-row__item">
                 <strong>{pillar.label}</strong>
@@ -244,37 +309,81 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="landing-section landing-section--features">
+      <section className="landing-section landing-section--features" id="modulos">
         <div className="container">
-          <span className="section-kicker">Arquitetura clínica</span>
+          <span className="section-kicker">Plataforma de IA ortopédica</span>
           <div className="section-heading">
             <div>
-              <h2>Uma superfície única para operação, decisão e rastreabilidade.</h2>
+              <h2>Uma inteligência para todas as necessidades reais da ortopedia.</h2>
               <p className="section-copy">
-                Cada módulo foi desenhado para apoiar o raciocínio ortopédico com menos fricção
-                visual e mais clareza operacional, do pedido ao plano terapêutico.
+                A ORTHO.AI combina raciocínio clínico, documentação, estudo, planejamento
+                cirúrgico, medicina regenerativa e operação de clínica em um ambiente único.
               </p>
             </div>
           </div>
 
-          <div className="feature-grid">
-            {solutions.map((solution) => (
-              <article key={solution.title} className="feature-card">
+          <div className="feature-grid feature-grid--suite">
+            {capabilities.map((capability) => (
+              <article key={capability.title} className="feature-card capability-card">
                 <div className="feature-card__icon">
-                  <Glyph kind={solution.kind} />
+                  <Glyph kind={capability.kind} />
                 </div>
-                <h3>{solution.title}</h3>
-                <p>{solution.description}</p>
+                <h3>{capability.title}</h3>
+                <p>{capability.description}</p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="landing-section landing-section--deep" id="cirurgia">
+        <div className="container">
+          <div className="depth-grid">
+            <article className="depth-panel depth-panel--dark">
+              <span className="section-kicker">Planejamento cirúrgico</span>
+              <h2>Deformidade, eixos, ângulos, materiais e estratégia em um único fluxo.</h2>
+              <p>
+                A IA organiza o caso, sugere medidas, estrutura a lógica cirúrgica,
+                prepara justificativas e transforma o planejamento em documentos acionáveis.
+              </p>
+              <ul className="depth-list">
+                {surgicalStack.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="depth-panel">
+              <span className="section-kicker">Formação contínua</span>
+              <h2>Uma camada de estudo para residentes e especialistas.</h2>
+              <p>
+                O mesmo motor que apoia a prática clínica também ensina: explica raciocínio,
+                cria revisões dirigidas, resume protocolos e simula discussão de casos.
+              </p>
+              <ul className="depth-list depth-list--light">
+                {residentStack.map((item) => (
+                  <li key={item}>{item}</li>
+                ))}
+              </ul>
+            </article>
+          </div>
+
+          <div className="workflow-board">
+            {workflow.map((item) => (
+              <article key={item.step} className="workflow-card">
+                <span>{item.step}</span>
+                <h3>{item.title}</h3>
+                <p>{item.detail}</p>
               </article>
             ))}
           </div>
 
           <div className="trial-banner">
             <div>
-              <strong>7 dias grátis — sem cartão de crédito</strong>
-              <span>Ative a experiência completa da ORTHO.AI e valide o fluxo clínico no seu ritmo.</span>
+              <strong>7 dias grátis, sem cartão de crédito</strong>
+              <span>Teste a plataforma como IA de trabalho, estudo, documentação e planejamento.</span>
             </div>
-            <div className="trial-banner__badge">Trial liberado</div>
+            <div className="trial-banner__badge">Cockpit completo</div>
           </div>
         </div>
       </section>
@@ -284,9 +393,10 @@ export default function Home() {
           <span className="section-kicker">Planos</span>
           <div className="section-heading">
             <div>
-              <h2>Escolha a cadência ideal para sua operação.</h2>
+              <h2>Escolha o nível de inteligência para sua rotina ortopédica.</h2>
               <p className="section-copy">
-                Mensal para começar rápido. Anual para consolidar uma rotina clínica com previsibilidade.
+                Da residência à clínica, a ORTHO.AI foi desenhada para crescer junto com
+                a complexidade do seu trabalho.
               </p>
             </div>
             <div className="billing-toggle" role="tablist" aria-label="Cobrança">
@@ -318,7 +428,7 @@ export default function Home() {
                   className={`plan-card${plan.featured ? " plan-card--featured" : ""}`}
                 >
                   <span className="plan-card__badge">
-                    {plan.featured ? "Mais popular" : "ORTHO.AI"}
+                    {plan.featured ? "Mais completo" : "ORTHO.AI"}
                   </span>
                   <h3>{plan.name}</h3>
                   <p className="plan-card__description">{plan.description}</p>
@@ -333,7 +443,7 @@ export default function Home() {
                   </ul>
                   <div className="plan-card__footer">
                     <Link href="/login" className={`button ${plan.featured ? "button--primary" : "button--ghost"}`}>
-                      Iniciar agora
+                      Começar agora
                     </Link>
                   </div>
                 </article>
@@ -343,15 +453,15 @@ export default function Home() {
         </div>
       </section>
 
-      <footer className="landing-footer" id="modulos">
+      <footer className="landing-footer">
         <div className="container">
           <div className="section-heading">
             <div>
-              <span className="section-kicker">Ecossistema</span>
-              <h3>Módulos que expandem a prática ortopédica em uma plataforma global.</h3>
+              <span className="section-kicker">Ecossistema ORTHO.AI</span>
+              <h3>O objetivo é ser a inteligência ortopédica mais completa do mercado.</h3>
             </div>
             <Link href="/dashboard" className="button button--ghost">
-              Ver dashboard
+              Abrir dashboard
             </Link>
           </div>
 

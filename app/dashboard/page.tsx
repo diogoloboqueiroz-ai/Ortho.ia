@@ -5,55 +5,71 @@ import { OrthoLogo } from "@/components/ortho-logo";
 
 const navigation = [
   { label: "Dashboard", active: true, short: "DB" },
+  { label: "Ortho Console", active: false, short: "AI" },
+  { label: "Estudo e Residência", active: false, short: "ER" },
   { label: "Novo Pedido (TUSS)", active: false, short: "NP" },
-  { label: "Meus Documentos", active: false, short: "MD" },
-  { label: "Ortho Console", active: false, short: "OC" },
-  { label: "Tabela TUSS", active: false, short: "TT" },
+  { label: "Laudos e Pareceres", active: false, short: "LP" },
+  { label: "Planejamento Cirúrgico", active: false, short: "PC" },
+  { label: "Ângulos e Medidas", active: false, short: "AM" },
+  { label: "Ortobiológicos", active: false, short: "OR" },
   { label: "Assinatura", active: false, short: "AS" },
   { label: "Perfil", active: false, short: "PF" },
 ] as const;
 
 const stats = [
-  { label: "Pedidos", value: "128", meta: "26 em processamento hoje" },
-  { label: "Laudos", value: "84", meta: "Taxa de conclusão 98%" },
-  { label: "Consultas IA", value: "312", meta: "Ortho Console nas últimas 2 semanas" },
-  { label: "Plano", value: "PRO", meta: "Renovação anual ativa" },
+  { label: "Casos discutidos", value: "128", meta: "IA clínica, estudo e segunda opinião" },
+  { label: "Documentos", value: "84", meta: "Laudos, pedidos e justificativas" },
+  { label: "Planejamentos", value: "36", meta: "Cirurgias, ângulos, OPME e TUSS" },
+  { label: "Trilhas de estudo", value: "12", meta: "Residência e revisão por subespecialidade" },
 ] as const;
 
 const shortcuts = [
   {
-    title: "Pedido Cirúrgico",
-    description: "Monte um pedido completo com base em contexto clínico e tabela TUSS.",
-    icon: "SC",
+    title: "Discutir Caso",
+    description: "Abra o Ortho Console para hipótese, conduta, protocolo e próximos passos.",
+    icon: "AI",
   },
   {
-    title: "Pedido de Exame",
-    description: "Solicite RX, RM, TC ou US com estrutura e justificativa em segundos.",
-    icon: "EX",
+    title: "Planejar Cirurgia",
+    description: "Organize técnica, materiais, OPME, riscos e estratégia do procedimento.",
+    icon: "PC",
   },
   {
-    title: "Laudo",
-    description: "Consolide achados, hipótese e recomendação com apoio do motor cognitivo.",
+    title: "Corrigir Ângulos",
+    description: "Estruture medidas, eixo mecânico, varo/valgo, osteotomia e deformidade.",
+    icon: "AM",
+  },
+  {
+    title: "Gerar Laudo",
+    description: "Transforme achados e raciocínio em laudo ou parecer médico organizado.",
     icon: "LD",
   },
   {
-    title: "Ortho Console",
-    description: "Abra o espaço de consulta clínica para raciocínio, revisão e tomada de decisão.",
-    icon: "AI",
+    title: "Pedido TUSS",
+    description: "Crie pedidos de exame ou cirurgia com justificativa e códigos relevantes.",
+    icon: "TT",
+  },
+  {
+    title: "Ortobiológicos",
+    description: "Revise indicação, protocolo, elegibilidade e documentação regenerativa.",
+    icon: "OB",
   },
 ] as const;
 
 const activities = [
-  { title: "Pedido TUSS atualizado", detail: "Artroscopia de ombro com materiais revisados.", status: "Pronto" },
-  { title: "Novo laudo aguardando revisão", detail: "RM de joelho direito recebida no workspace.", status: "Fila" },
-  { title: "Consulta IA finalizada", detail: "Síntese de protocolo para infiltração ortobiológica.", status: "Concluído" },
+  { title: "Planejamento cirúrgico em revisão", detail: "Joelho varo: eixo mecânico, OPME e justificativa pré-operatória.", status: "Aberto" },
+  { title: "Laudo estruturado gerado", detail: "RM de ombro com síntese, hipótese e recomendação clínica.", status: "Pronto" },
+  { title: "Trilha de estudo atualizada", detail: "Trauma: fraturas do rádio distal, classificação e conduta.", status: "Estudo" },
+  { title: "Protocolo regenerativo salvo", detail: "Checklist para infiltração ortobiológica e documentação LGPD.", status: "Ativo" },
 ] as const;
 
 const stackItems = [
-  { label: "Análise de Imagens", value: "Ativa" },
-  { label: "Planejamento Cirúrgico", value: "Ativo" },
-  { label: "Documentos LGPD", value: "Sincronizado" },
-  { label: "Assinatura Profissional", value: "Renova em 12 meses" },
+  { label: "Ortho Console", value: "IA clínica ativa" },
+  { label: "Estudo e residência", value: "Biblioteca guiada" },
+  { label: "Planejamento cirúrgico", value: "Ângulos + materiais" },
+  { label: "Laudos e pedidos", value: "Documentos prontos" },
+  { label: "Ortobiológicos", value: "Regenerativa" },
+  { label: "Dados e LGPD", value: "Rastreável" },
 ] as const;
 
 export default function DashboardPage() {
@@ -63,7 +79,7 @@ export default function DashboardPage() {
         <aside className="dashboard-sidebar">
           <div className="dashboard-sidebar__meta">
             <OrthoLogo tone="light" />
-            <span className="dashboard-chip">OrthoBrain Engine™</span>
+            <span className="dashboard-chip">Cockpit de IA ortopédica</span>
           </div>
 
           <nav className="dashboard-nav" aria-label="Dashboard">
@@ -76,10 +92,10 @@ export default function DashboardPage() {
           </nav>
 
           <div className="dashboard-sidebar__footer">
-            <strong>Camada clínica ativa</strong>
+            <strong>ORTHO.AI completa</strong>
             <p>
-              Workspace configurado para pedidos, laudos, consulta cognitiva e documentos com
-              rastreabilidade operacional.
+              Uma inteligência para estudar, decidir, planejar, documentar e operar a rotina
+              ortopédica com evidência, precisão e rastreabilidade.
             </p>
           </div>
         </aside>
@@ -88,7 +104,7 @@ export default function DashboardPage() {
           <header className="dashboard-topbar">
             <div>
               <p>Painel ORTHO.AI</p>
-              <h1>Dashboard operacional</h1>
+              <h1>Cockpit ortopédico inteligente</h1>
             </div>
 
             <div className="dashboard-topbar__user">
@@ -102,11 +118,14 @@ export default function DashboardPage() {
 
           <div className="dashboard-banner">
             <div>
-              <strong>Trial do desenvolvedor ativo</strong>
-              <span>Experiência completa habilitada para validar landing, login e dashboard.</span>
+              <strong>Plataforma de IA ortopédica em modo desenvolvedor</strong>
+              <span>
+                Este painel representa o produto real: estudo, clínica, laudos, TUSS,
+                cirurgia, ângulos, ortobiológicos e medicina regenerativa.
+              </span>
             </div>
             <Link href="/" className="button button--primary">
-              Voltar para a home
+              Ver visão geral
             </Link>
           </div>
 
@@ -123,8 +142,8 @@ export default function DashboardPage() {
           <section className="dashboard-section">
             <div className="section-heading">
               <div>
-                <span className="section-kicker">Ações rápidas</span>
-                <h3>Atalhos para os fluxos mais usados</h3>
+                <span className="section-kicker">Ações inteligentes</span>
+                <h3>Atalhos para as necessidades centrais do ortopedista</h3>
               </div>
             </div>
 
@@ -145,7 +164,7 @@ export default function DashboardPage() {
                 <div className="section-heading">
                   <div>
                     <span className="section-kicker">Atividade recente</span>
-                    <h3>Fluxos em andamento</h3>
+                    <h3>Fluxos clínicos em andamento</h3>
                   </div>
                 </div>
 
@@ -165,8 +184,8 @@ export default function DashboardPage() {
               <article className="dashboard-panel">
                 <div className="section-heading">
                   <div>
-                    <span className="section-kicker">Workspace</span>
-                    <h3>Módulos habilitados</h3>
+                    <span className="section-kicker">Módulos habilitados</span>
+                    <h3>Stack ORTHO.AI</h3>
                   </div>
                 </div>
 
