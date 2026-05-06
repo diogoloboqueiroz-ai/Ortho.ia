@@ -7,6 +7,7 @@ import { supabaseAdmin } from "./supabase";
 import type { Subscription } from "./supabase";
 
 const DEVELOPER_EMAIL = process.env.DEVELOPER_EMAIL || "diogo.lobo.queiroz@gmail.com";
+const DEVELOPER_USER_ID = "developer-diogo-lobo-queiroz";
 const TRIAL_DAYS = 7;
 
 // ── Criar assinatura trial ao registrar ───────────────────────────────────
@@ -52,6 +53,15 @@ export async function checkAccess(userId: string): Promise<{
   subscription: Subscription | null;
   trialDaysLeft: number | null;
 }> {
+  if (userId === DEVELOPER_USER_ID || userId.startsWith("developer-")) {
+    return {
+      hasAccess: true,
+      reason: "developer",
+      subscription: null,
+      trialDaysLeft: null,
+    };
+  }
+
   const { data: sub } = await supabaseAdmin
     .from("subscriptions")
     .select("*")

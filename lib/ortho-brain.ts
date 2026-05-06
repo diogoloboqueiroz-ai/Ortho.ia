@@ -28,6 +28,35 @@ const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
 const openai    = new OpenAI({ apiKey: process.env.OPENAI_API_KEY! });
 const gemini    = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
 
+const PLACEHOLDER_TOKENS = ["placeholder", "SUA_CHAVE", "sk-SUA", "sk-ant-SUA", "AIzaSy-SUA"];
+
+function hasRealApiKey(value?: string) {
+  if (!value) {
+    return false;
+  }
+
+  return !PLACEHOLDER_TOKENS.some((token) => value.includes(token));
+}
+
+function isModelConfigured(model: ModelUsed) {
+  if (model === "gpt-4o") {
+    return hasRealApiKey(process.env.OPENAI_API_KEY);
+  }
+
+  if (model === "gemini-2.5-flash") {
+    return hasRealApiKey(process.env.GEMINI_API_KEY);
+  }
+
+  if (model === "pipeline:gemini+claude") {
+    return (
+      hasRealApiKey(process.env.GEMINI_API_KEY) &&
+      hasRealApiKey(process.env.ANTHROPIC_API_KEY)
+    );
+  }
+
+  return hasRealApiKey(process.env.ANTHROPIC_API_KEY);
+}
+
 // ── Tipos ─────────────────────────────────────────────────────────────────
 
 export type Message = {
@@ -394,6 +423,24 @@ export async function callOrthoBrain(
   const start    = Date.now();
 
   let result: { content: string; inputTokens: number; outputTokens: number; cached: boolean };
+
+  if (!isModelConfigured(model)) {
+    return {
+      content:
+        `Modo demonstrativo do OrthoBrain Engine™ ativo.\n\n` +
+        `A autenticação e o acesso desenvolvedor estão funcionando, mas a chamada real ao modelo "${model}" ainda depende da configuração da respectiva API key em produção.\n\n` +
+        `Assim que as chaves de IA forem configuradas, este mesmo endpoint responderá com raciocínio ortopédico real para estudo, laudos, pedidos TUSS, planejamento cirúrgico, correção de ângulos, ortobiológicos e medicina regenerativa.\n\n` +
+        `Pergunta recebida: ${lastMsg || "sem conteúdo textual."}`,
+      mode,
+      model,
+      engine: "OrthoBrain Engine™",
+      latency: Date.now() - start,
+      inputTokens: 0,
+      outputTokens: 0,
+      hasVision: hasImage,
+      cached: false,
+    };
+  }
 
   switch (model) {
     case "gpt-4o":
