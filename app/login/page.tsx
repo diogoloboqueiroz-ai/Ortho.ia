@@ -2,27 +2,53 @@ import Link from "next/link";
 import { signIn } from "@/auth";
 import { OrthoLogo } from "@/components/ortho-logo";
 
-const PLACEHOLDER_TOKENS = ["placeholder", "SEU_GOOGLE_CLIENT_ID", "SEU_GOOGLE_CLIENT_SECRET"];
+const PLACEHOLDER_TOKENS = [
+  "placeholder",
+  "SEU_GOOGLE_CLIENT_ID",
+  "SEU_GOOGLE_CLIENT_SECRET",
+];
 
-function hasRealGoogleOAuthConfig() {
-  const clientId = process.env.AUTH_GOOGLE_ID ?? "";
-  const clientSecret = process.env.AUTH_GOOGLE_SECRET ?? "";
-
-  if (!clientId || !clientSecret) {
+function hasRealValue(value?: string) {
+  if (!value) {
     return false;
   }
 
-  return !PLACEHOLDER_TOKENS.some(
-    (token) => clientId.includes(token) || clientSecret.includes(token)
+  return !PLACEHOLDER_TOKENS.some((token) => value.includes(token));
+}
+
+function hasRealGoogleOAuthConfig() {
+  return (
+    hasRealValue(process.env.AUTH_GOOGLE_ID) &&
+    hasRealValue(process.env.AUTH_GOOGLE_SECRET)
   );
 }
 
-export default function LoginPage() {
+function hasDeveloperAccessConfig() {
+  return hasRealValue(process.env.DEVELOPER_LOGIN_CODE);
+}
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ error?: string }>;
+}) {
+  const params = await searchParams;
   const googleAuthConfigured = hasRealGoogleOAuthConfig();
+  const developerAccessConfigured = hasDeveloperAccessConfig();
+  const hasCredentialsError = params?.error === "CredentialsSignin";
 
   async function signInWithGoogle() {
     "use server";
     await signIn("google", { redirectTo: "/dashboard" });
+  }
+
+  async function signInWithDeveloper(formData: FormData) {
+    "use server";
+    await signIn("developer", {
+      email: String(formData.get("email") || ""),
+      code: String(formData.get("code") || ""),
+      redirectTo: "/dashboard",
+    });
   }
 
   return (
@@ -33,8 +59,8 @@ export default function LoginPage() {
             <OrthoLogo tone="light" />
             <h1>Entrar na ORTHO.AI</h1>
             <p>
-              Acesse o cockpit clínico da sua operação ortopédica com identidade visual
-              consistente, contexto seguro e fluxos preparados para consulta, laudo e decisão.
+              Acesse o cockpit de IA ortopédica para estudo, decisão clínica, laudos,
+              pedidos TUSS, planejamento cirúrgico, ângulos e medicina regenerativa.
             </p>
           </div>
 
@@ -44,12 +70,12 @@ export default function LoginPage() {
               <span>Trial liberado sem cartão</span>
             </div>
             <div>
-              <strong>LGPD</strong>
-              <span>Camada segura para documentos</span>
+              <strong>IA</strong>
+              <span>Ortho Console clínico</span>
             </div>
             <div>
-              <strong>24/7</strong>
-              <span>OrthoBrain Engine™ ativo</span>
+              <strong>Dev</strong>
+              <span>Acesso permanente habilitado</span>
             </div>
           </div>
         </div>
@@ -57,7 +83,7 @@ export default function LoginPage() {
         <div className="auth-card">
           <OrthoLogo tone="dark" subtitle={false} />
           <h2>Bem-vindo de volta</h2>
-          <p>Escolha o método de acesso preferido para continuar para o console clínico.</p>
+          <p>Entre para continuar para o cockpit ortopédico inteligente.</p>
 
           {googleAuthConfigured ? (
             <form action={signInWithGoogle}>
@@ -83,30 +109,60 @@ export default function LoginPage() {
                 Entrar com Google
               </button>
               <p className="auth-note">
-                Login Google indisponível neste ambiente. Configure `AUTH_GOOGLE_ID` e
-                `AUTH_GOOGLE_SECRET` reais para habilitar o OAuth.
+                Google OAuth será habilitado quando `AUTH_GOOGLE_ID` e
+                `AUTH_GOOGLE_SECRET` reais forem configurados.
               </p>
             </>
           )}
 
-          <div className="auth-divider">ou continue com e-mail</div>
+          <div className="auth-divider">ou use acesso desenvolvedor</div>
 
-          <form className="auth-form">
+          <form className="auth-form" action={signInWithDeveloper}>
             <div className="auth-field">
-              <label htmlFor="email">E-mail</label>
-              <input id="email" type="email" placeholder="nome@clinica.com.br" />
+              <label htmlFor="email">E-mail do desenvolvedor</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                defaultValue="diogo.lobo.queiroz@gmail.com"
+                autoComplete="email"
+                required
+              />
             </div>
             <div className="auth-field">
-              <label htmlFor="password">Senha</label>
-              <input id="password" type="password" placeholder="Digite sua senha" />
+              <label htmlFor="code">Código de acesso</label>
+              <input
+                id="code"
+                name="code"
+                type="password"
+                placeholder="Digite o código de desenvolvedor"
+                autoComplete="current-password"
+                required
+              />
             </div>
-            <button type="submit" className="button button--primary auth-submit">
+
+            {hasCredentialsError ? (
+              <p className="auth-error">E-mail ou código de acesso inválido.</p>
+            ) : null}
+
+            {!developerAccessConfigured ? (
+              <p className="auth-note">
+                Acesso desenvolvedor indisponível. Configure `DEVELOPER_LOGIN_CODE`.
+              </p>
+            ) : null}
+
+            <button
+              type="submit"
+              className="button button--primary auth-submit"
+              disabled={!developerAccessConfigured}
+              aria-disabled={!developerAccessConfigured}
+            >
               Acessar plataforma
             </button>
           </form>
 
           <div className="auth-footer">
-            <Link href="/">Voltar para a landing</Link>
+            <Link href="/">Voltar para visão geral</Link>
             <a href="mailto:diogo.lobo.queiroz@gmail.com?subject=Criar%20conta%20ORTHO.AI">
               Criar conta
             </a>
